@@ -12,6 +12,7 @@
 var tit=document.getElementsByTagName('meta');
 var maxRomanNumeral = 30;
 var checkDoneRate = 5000; //5000 = 5 seconds
+var intervalSpacing = 1000; // for multi part numbers (season 999 episode 999), how large can each of them be before overlap
 
 // the check done rate is used since it is less reliable to attempt
 // to attach a state change listener since it will reload 
@@ -57,6 +58,8 @@ function romanize(num) {
 function prepNumbers(a){
 	var rn,rexp;
 	a=a.toUpperCase()+' ';
+  a=a.replace(/PART/g,'PT');
+  a=a.replace(/EPISODE/g,'EP');
   
   rn=a.match(/[^A-z0-9](M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))/g);// adapted from http://stackoverflow.com/questions/267399/how-do-you-match-only-valid-roman-numerals-with-a-regular-expression
 	if( rn && rn.length > 0 ){
@@ -72,32 +75,43 @@ function prepNumbers(a){
 	return a;
 }
 
+function computeNumericalValue(rmisb){//of array of numbers
+  var tnum=0;
+  if(rmisb && rmisb.length > 0){
+  	var len=rmisb.length;
+	  tnum+=(rmisb[0]-0);
+	  for(var i=1;i<len;i++){	
+			tnum+= (rmisb[i]-0)/((i)*intervalSpacing)
+	  }
+	}
+	return tnum
+}
+
+var zmisa,rmisa;
+
+function presetCompare(a){
+	zmisa=a.match(/[A-z]+/g);
+	if(zmisa)zmisa=zmisa.join('')
+	rmisa=a.match(/[.\d]+/g);
+	rmisa=computeNumericalValue(rmisa)
+}
+
 //the letters in the strings should be preped first using prepNumbers
-function compareLetters(a,b){
-  var zmisa,zmisb,rmisa,rmisb;
+function compareLetters(b){
+  var zmisb,rmisb;
   
-  zmisa=a.match(/[A-z]+/g); //becomes redundent
   zmisb=b.match(/[A-z]+/g);
-  
-  rmisa=a.match(/[.\d]+/g); //becomes redundent
+  if(zmisb)zmisb=zmisb.join('')
   rmisb=b.match(/[.\d]+/g);
+  rmisb=computeNumericalValue(rmisb)
+  //console.log(zmisb + '=' + zmisa+'='+zmisb.indexOf(zmisa)+'='+zmisa.indexOf(zmisb));
   
-  if(rmisa&&rmisb  && zmisa&&zmisb && zmisa.join('')==zmisb.join('') ){
-  	//GM_log(zmisa + '-' +zmisb + '=' + rmisa + '-' + rmisb);
-	  //should have same number of numbers??
-	  if( rmisa.length == rmisb.length ){
-	    var len=Math.max(rmisa.length,rmisb.length);
-		  for(var i=len-1;i>=0;i--){
-		    if(  rmisa[i]!=rmisb[i] && rmisa[i]-0 < rmisb[i]-0 ){
-					//console.log('='+ rmisa + '=' + rmisb + '=');
-					for( q=i-1; a>=0;a-- ){
-						if( rmisa[q]!=rmisb[q] )
-							return false;// while detail is incremented, other numbers mismatch
-					}
-			  	return rmisb[i]-0;
-			  }
-		  }
-		}
+  if(rmisa&&rmisb && 
+     zmisa&&zmisb && 
+     zmisb==zmisa &&
+     rmisa < rmisb
+  ){
+     	return rmisb;
 	}
   return false;
 }
@@ -113,15 +127,15 @@ var found=[],fc=0;
 var ti=document.getElementsByClassName('title')
 
 function seekNextTrack(){
-	var titest=prepNumbers(tit);
+	presetCompare(prepNumbers(tit));
 	for(var i=0,l=ti.length;i<l;i++){
 	  var tid = ti[i].title;
-	   posb=compareLetters(titest,prepNumbers(tid));
+	   posb=compareLetters(prepNumbers(tid));
 	   if(posb){
 	    var hrf=finda(ti[i]).href;
 	    hrf = hrf.substr(0,hrf.indexOf('&'));
 	    if(!found[hrf]){
-	      found.push(posb+'|||'+hrf+'|||'+tid);
+	    	found.push({nid:posb,href:hrf,title:tid,elem:ti[i]});
 	      fc++;
 	    }
 	   }
@@ -163,9 +177,7 @@ function onytplayerStateChange(s){
 }
 
 function sortfunction(a, b){
-	a=a.split('|||')[0];
-	b=b.split('|||')[0];
-	return (a - b) //causes an array to be sorted numerically and ascending
+	return (a.nid - b.nid) //causes an array to be sorted numerically and ascending
 }
 
 seekNextTrack();
@@ -174,17 +186,15 @@ if( fc>0 ){
 	
   found.sort(sortfunction);
 	
-	//for( i in found){GM_log(found[i]);}
+	//for( i in found){console.log(found[i].nid,found[i].href,found[i].title);found[i].elem.style.border="1px solid blue";}
 
   for( i in found){
-
-   th1=found[i];
-   if(th1.indexOf('|||')>0){
-   	found[i]=th1.split('|||')
-    th1=found[i][1]
-   }
+		//found.push({nid:posb,href:hrf,title:tid,elem:ti[i]});
+   th1=found[i].href;
+   found[i].elem.style.border="1px solid #FAC";
+   found[i].elem.title+=' [selected as Next in Series]';
    try{	
-    console.log('next video in series: ' + th1 + ' ' +(found[i][2]?found[i][2]:''));
+    console.log('next video in series: ' + th1 + ' ' +(found[i].title?found[i].title:''));
    }catch(e){}
    break;
   }
