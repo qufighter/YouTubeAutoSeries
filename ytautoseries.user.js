@@ -9,7 +9,6 @@
 // If you compensate me for use of this functionality I will 
 // share your payment with any contributions that are involved
 
-var tit=document.getElementsByTagName('meta');
 var maxRomanNumeral = 30;
 var checkDoneRate = 5000; //5000 = 5 seconds
 var intervalSpacing = 1000; // for multi part numbers (season 999 episode 999), how large can each of them be before overlap
@@ -22,6 +21,8 @@ function _ge(e){
   return document.getElementById(e);
 }
 
+//grab current video title
+var tit=document.getElementsByTagName('meta');
 for(var i=0,l=tit.length;i<l;i++){
   if(tit[i].name='title'){
     tit=tit[i].content;
@@ -91,7 +92,7 @@ var zmisa,rmisa;
 
 function presetCompare(a){
 	zmisa=a.match(/[A-z]+/g);
-	if(zmisa)zmisa=zmisa.join('')
+	if(zmisa)zmisa=zmisa[0]//.join('')
 	rmisa=a.match(/[.\d]+/g);
 	rmisa=computeNumericalValue(rmisa)
 }
@@ -101,9 +102,10 @@ function compareLetters(b){
   var zmisb,rmisb;
   
   zmisb=b.match(/[A-z]+/g);
-  if(zmisb)zmisb=zmisb.join('')
+  if(zmisb)zmisb=zmisb[0]//.join('')
   rmisb=b.match(/[.\d]+/g);
   rmisb=computeNumericalValue(rmisb)
+  
   //console.log(zmisb + '=' + zmisa+'='+zmisb.indexOf(zmisa)+'='+zmisa.indexOf(zmisb));
   
   if(rmisa&&rmisb && 
@@ -203,6 +205,13 @@ if( fc>0 ){
 
 }else if( fc==0 ){
   console.log('no next video in series found');
+  
+  // possibly we do a search here...
+  
+  //http://google.about.com/od/googlepowersearches/qt/numrange.htm
+  //allintitle:the title episode 1..999 season * part *
+  //does not really work :/
+  
 }else{
   console.log('no next video in series identified, conficts exist, report this video to script author qufighter[at]gmail[dot]com include this URL: '+ window.location.href);
 }
