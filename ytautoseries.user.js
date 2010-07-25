@@ -22,11 +22,12 @@ function _ge(e){
 }
 
 //grab current video title
-var tit=document.getElementsByTagName('meta');
-for(var i=0,l=tit.length;i<l;i++){
-  if(tit[i].name='title'){
-    tit=tit[i].content;
-    break;
+var metas=document.getElementsByTagName('meta'),author,tit;
+for(var i=0,l=metas.length;i<l;i++){
+  if(metas[i].name=='title'){
+    tit=metas[i].content;
+  }else if(metas[i].name=='attribution'){
+  	author=metas[i].content;
   }
 }
 //http://blog.stevenlevithan.com/archives/javascript-roman-numeral-converter
@@ -131,16 +132,16 @@ var ti=document.getElementsByClassName('title')
 function seekNextTrack(){
 	presetCompare(prepNumbers(tit));
 	for(var i=0,l=ti.length;i<l;i++){
-	  var tid = ti[i].title;
-	   posb=compareLetters(prepNumbers(tid));
-	   if(posb){
-	    var hrf=finda(ti[i]).href;
-	    hrf = hrf.substr(0,hrf.indexOf('&'));
-	    if(!found[hrf]){
-	    	found.push({nid:posb,href:hrf,title:tid,elem:ti[i]});
-	      fc++;
-	    }
-	   }
+		var tid = ti[i].title;
+		posb=compareLetters(prepNumbers(tid));
+		if(posb){
+			var hrf=finda(ti[i]).href;
+			hrf = hrf.substr(0,hrf.indexOf('&'));
+			if(!found[hrf]){
+				found.push({nid:posb,href:hrf,title:tid,elem:ti[i]});
+				fc++;
+			}
+		}
 	}
 }
 
@@ -193,7 +194,7 @@ if( fc>0 ){
   for( i in found){
 		//found.push({nid:posb,href:hrf,title:tid,elem:ti[i]});
    th1=found[i].href;
-   found[i].elem.style.border="1px solid #FAC";
+   found[i].elem.parentNode.style.border="1px solid #FAC";
    found[i].elem.title+=' [selected as Next in Series]';
    try{	
     console.log('next video in series: ' + th1 + ' ' +(found[i].title?found[i].title:''));
