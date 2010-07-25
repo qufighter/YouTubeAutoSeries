@@ -84,17 +84,20 @@ function compareLetters(a,b){
   
   if(rmisa&&rmisb  && zmisa&&zmisb && zmisa.join('')==zmisb.join('') ){
   	//GM_log(zmisa + '-' +zmisb + '=' + rmisa + '-' + rmisb);
-	  var len=Math.max(rmisa.length-0,rmisb.length-0);
-	  
 	  //should have same number of numbers??
-	  
-	  for(var i=len-1;i>=0;i--){
-	    if(  rmisa[i]!=rmisb[i] && rmisa[i]-0 < rmisb[i]-0 ){
-				//console.log('='+ rmisa + '=' + rmisb + '=');
-				//console.log(rmisb[i]);
-		  	return rmisb[i]-0;
+	  if( rmisa.length == rmisb.length ){
+	    var len=Math.max(rmisa.length,rmisb.length);
+		  for(var i=len-1;i>=0;i--){
+		    if(  rmisa[i]!=rmisb[i] && rmisa[i]-0 < rmisb[i]-0 ){
+					//console.log('='+ rmisa + '=' + rmisb + '=');
+					for( q=i-1; a>=0;a-- ){
+						if( rmisa[q]!=rmisb[q] )
+							return false;// while detail is incremented, other numbers mismatch
+					}
+			  	return rmisb[i]-0;
+			  }
 		  }
-	  }
+		}
 	}
   return false;
 }
