@@ -93,7 +93,8 @@ var zmisa,rmisa;
 
 function presetCompare(a){
 	zmisa=a.match(/[A-z]+/g);
-	if(zmisa)zmisa=zmisa[0]//.join('')
+	//if(zmisa)zmisa=zmisa[0]//.join('')
+	//if(!zmisa)zmisa=new Array();
 	rmisa=a.match(/[.\d]+/g);
 	rmisa=computeNumericalValue(rmisa)
 }
@@ -103,18 +104,29 @@ function compareLetters(b){
   var zmisb,rmisb;
   
   zmisb=b.match(/[A-z]+/g);
-  if(zmisb)zmisb=zmisb[0]//.join('')
+  //if(zmisb)zmisb=zmisb[0]//.join('')
+  //if(!zmisb)zmisb=new Array();
   rmisb=b.match(/[.\d]+/g);
   rmisb=computeNumericalValue(rmisb)
+  
+  
   
   //console.log(zmisb + '=' + zmisa+'='+zmisb.indexOf(zmisa)+'='+zmisa.indexOf(zmisb));
   
   if(rmisa&&rmisb && 
      zmisa&&zmisb && 
-     zmisb==zmisa &&
+     zmisb[0]==zmisa[0] &&
      rmisa < rmisb
   ){
-     	return rmisb;
+  	  var matchingWordBonus=0;
+		  for(var i=0,l=zmisb.length,ac=0;i<l;i++){
+		  	if(zmisa[ac]==zmisb[i]){
+		  		matchingWordBonus++;
+		  		ac++;
+		  	}
+		  }
+  	  //console.log(zmisb.join(' ')+ ' '+matchingWordBonus);
+     	return rmisb-matchingWordBonus;
 	}
   return false;
 }
@@ -134,7 +146,7 @@ function seekNextTrack(){
 	for(var i=0,l=ti.length;i<l;i++){
 		var tid = ti[i].title;
 		posb=compareLetters(prepNumbers(tid));
-		if(posb){
+		if(typeof(posb)!='boolean'){
 			var hrf=finda(ti[i]).href;
 			hrf = hrf.substr(0,hrf.indexOf('&'));
 			if(!found[hrf]){
