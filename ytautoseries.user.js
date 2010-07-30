@@ -5,6 +5,8 @@
 // @include        http://www.youtube.com/watch*
 // ==/UserScript==
 
+var version = 0.07;
+
 // Any comercial use of any functionality should be compensated
 // If you compensate me for use of this functionality I will 
 // share your payment with any contributions that are involved
@@ -60,9 +62,13 @@ function romanize(num) {
 function prepNumbers(a){
 	var rn,rexp;
 	a=a.toUpperCase()+' ';
+	
+	//since some inconsistency is expected turn all like things
+	// into the same string
   a=a.replace(/PART/g,'PT');
   a=a.replace(/EPISODE/g,'EP');
   
+  //turn roman numerals into integers
   rn=a.match(/[^A-z0-9](M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))/g);// adapted from http://stackoverflow.com/questions/267399/how-do-you-match-only-valid-roman-numerals-with-a-regular-expression
 	if( rn && rn.length > 0 ){
 	  for( i=maxRomanNumeral; i>0; i-- ){
@@ -70,6 +76,7 @@ function prepNumbers(a){
 		}
   }
   
+  //turn standalone letters A,B,C... into integers
   for(var l = 65; l < 91; l++ ){
 	  var rexp = new RegExp("(([^A-z0-9])["+String.fromCharCode(l)+"](?=[^A-z0-9]))","g");
 	  a = a.replace(rexp,' '+(l-64));
@@ -93,8 +100,6 @@ var zmisa,rmisa;
 
 function presetCompare(a){
 	zmisa=a.match(/[A-z]+/g);
-	//if(zmisa)zmisa=zmisa[0]//.join('')
-	//if(!zmisa)zmisa=new Array();
 	rmisa=a.match(/[.\d]+/g);
 	rmisa=computeNumericalValue(rmisa)
 }
@@ -104,13 +109,9 @@ function compareLetters(b){
   var zmisb,rmisb;
   
   zmisb=b.match(/[A-z]+/g);
-  //if(zmisb)zmisb=zmisb[0]//.join('')
-  //if(!zmisb)zmisb=new Array();
   rmisb=b.match(/[.\d]+/g);
   rmisb=computeNumericalValue(rmisb)
-  
-  
-  
+
   //console.log(zmisb + '=' + zmisa+'='+zmisb.indexOf(zmisa)+'='+zmisa.indexOf(zmisb));
   
   if(rmisa&&rmisb && 
@@ -118,15 +119,21 @@ function compareLetters(b){
      zmisb[0]==zmisa[0] &&
      rmisa < rmisb
   ){
+ 
+      var unmatchingWordPenalty=0;
   	  var matchingWordBonus=0;
 		  for(var i=0,l=zmisb.length,ac=0;i<l;i++){
 		  	if(zmisa[ac]==zmisb[i]){
 		  		matchingWordBonus++;
 		  		ac++;
+		  	}else{
+		  		unmatchingWordPenalty++;
 		  	}
 		  }
+		  
+		  //console.log(rex + '=' + matchingWordBonus);
   	  //console.log(zmisb.join(' ')+ ' '+matchingWordBonus);
-     	return rmisb-matchingWordBonus;
+     	return rmisb-matchingWordBonus+unmatchingWordPenalty;
 	}
   return false;
 }
