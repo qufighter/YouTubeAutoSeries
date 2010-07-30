@@ -133,7 +133,7 @@ function compareLetters(b){
 		  
 		  //console.log(rex + '=' + matchingWordBonus);
   	  //console.log(zmisb.join(' ')+ ' '+matchingWordBonus);
-     	return rmisb-matchingWordBonus+unmatchingWordPenalty;
+     	return rmisb-matchingWordBonus+(unmatchingWordPenalty*0.1);
 	}
   return false;
 }
