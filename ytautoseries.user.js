@@ -1,4 +1,4 @@
-// ==UserScript==
+﻿// ==UserScript==
 // @name           YouTube Auto Series, Play Next Video Script
 // @namespace      vidzbigger.com
 // @description    Automatically plays the next video based on sequential titles, supporting increasing detail such as Season III Episode 4 Part B
@@ -57,7 +57,7 @@ function romanize(num) {
     }
   }
   return roman;
-}//thanks to Iv�n -DrSlump- Montes
+}//thanks to Iván -DrSlump- Montes
 
 function prepNumbers(a){
 	var rn,rexp;
@@ -88,28 +88,30 @@ function computeNumericalValue(rmisb){//of array of numbers
   var tnum=0;
   if(rmisb && rmisb.length > 0){
   	var len=rmisb.length;
-	  tnum+=(rmisb[0]-0);
-	  for(var i=1;i<len;i++){	
-			tnum+= (rmisb[i]-0)/((i)*intervalSpacing)
+	  if(!isNaN(rmisb[0])) tnum+=(rmisb[0]-0);
+	  for(var i=1;i<len;i++){
+			if(!isNaN(rmisb[i])) tnum+= (rmisb[i]-0)/((i)*intervalSpacing)
 	  }
 	}
 	return tnum
 }
 
-var zmisa,rmisa;
+var zmisa,rmisa,nmisa;
 
 function presetCompare(a){
 	zmisa=a.match(/[A-z]+/g);
 	rmisa=a.match(/[.\d]+/g);
+	nmisa=rmisa;
 	rmisa=computeNumericalValue(rmisa)
 }
 
 //the letters in the strings should be preped first using prepNumbers
 function compareLetters(b){
-  var zmisb,rmisb;
+  var zmisb,rmisb,nmisb;
   
   zmisb=b.match(/[A-z]+/g);
   rmisb=b.match(/[.\d]+/g);
+  nmisb=rmisb;
   rmisb=computeNumericalValue(rmisb)
 
   //console.log(zmisb + '=' + zmisa+'='+zmisb.indexOf(zmisa)+'='+zmisa.indexOf(zmisb));
@@ -119,21 +121,22 @@ function compareLetters(b){
      zmisb[0]==zmisa[0] &&
      rmisa < rmisb
   ){
- 
-      var unmatchingWordPenalty=0;
-  	  var matchingWordBonus=0;
+  	
+  	  // if ... is a number then we can't rely on lengths
+  	  var matchingWordScore=nmisb.length - nmisa.length;//matching number of numbers bonus is initial value
+		  //console.log('zzz'+nmisb.length+ ' = '+nmisa.length);
 		  for(var i=0,l=zmisb.length,ac=0;i<l;i++){
 		  	if(zmisa[ac]==zmisb[i]){
-		  		matchingWordBonus++;
+		  		matchingWordScore++;
 		  		ac++;
 		  	}else{
-		  		unmatchingWordPenalty++;
+		  		matchingWordScore--;
 		  	}
 		  }
 		  
-		  //console.log(rex + '=' + matchingWordBonus);
-  	  //console.log(zmisb.join(' ')+ ' '+matchingWordBonus);
-     	return rmisb-matchingWordBonus+(unmatchingWordPenalty*0.1);
+		  //console.log(rex + '=' + matchingWordScore);
+  	  //console.log(zmisb.join(' ')+ ' '+matchingWordScore);
+     	return rmisb-matchingWordScore;
 	}
   return false;
 }
@@ -209,7 +212,7 @@ if( fc>0 ){
   found.sort(sortfunction);
 	
 	//for( i in found){console.log(found[i].nid,found[i].href,found[i].title);found[i].elem.style.border="1px solid blue";}
-
+	
   for( i in found){
 		//found.push({nid:posb,href:hrf,title:tid,elem:ti[i]});
    th1=found[i].href;

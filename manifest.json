@@ -1,0 +1,17 @@
+{
+   "content_scripts": [ {
+      "js": [ "ytautoseries.user.js" ],
+      "run_at": "document_idle",
+      "matches": [ "http://www.youtube.com/watch*" ]
+   } ],
+   "description": "Automatically plays the next video based on sequential titles, supporting increasing detail such as Season III Episode 4 Part B",
+   "name": "YouTube Auto Series, Play Next Video Script",
+   "icons": { "16": "icon16.png",
+           "32": "icon32.png",
+           "48": "icon48.png",
+          "128": "icon128.png" },
+   "permissions": [
+				  "http://vidzbigger.com/","http://www.vidzbigger.com/","tabs"
+				],
+   "version": "0.0.1.0"
+}
