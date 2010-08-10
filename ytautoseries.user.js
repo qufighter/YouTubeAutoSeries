@@ -5,7 +5,7 @@
 // @include        http://www.youtube.com/watch*
 // ==/UserScript==
 
-var version = 0.07;
+var version = 0.08;
 
 // Any comercial use of any functionality should be compensated
 // If you compensate me for use of this functionality I will 
