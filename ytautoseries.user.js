@@ -123,7 +123,7 @@ function compareLetters(b){
   ){
   	
   	  // if ... is a number then we can't rely on lengths
-  	  var matchingWordScore=nmisb.length - nmisa.length;//matching number of numbers bonus is initial value
+  	  var matchingWordScore=nmisa.length-nmisb.length;//matching number of numbers bonus is initial value
 		  //console.log('zzz'+nmisb.length+ ' = '+nmisa.length);
 		  for(var i=0,l=zmisb.length,ac=0;i<l;i++){
 		  	if(zmisa[ac]==zmisb[i]){
